@@ -9,160 +9,111 @@ from datetime import datetime
 
 st.set_page_config(
     page_title="CareLens | Clinical Intelligence",
-    page_icon="🩺",
+    page_icon="✚",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
+MODEL = "openai/gpt-oss-120b"
+
 # --------------------------------------------------
-# MEDICAL UI DESIGN
+# DARK MEDICAL THEME
 # --------------------------------------------------
 
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 
 html, body, [class*="css"] {
     font-family: 'DM Sans', sans-serif;
 }
 
 .stApp {
-    background: #f4f8fb;
+    background: #080F1C;
+    color: #E8F0F7;
 }
 
-[data-testid="stHeader"] {
-    background: rgba(244,248,251,0.9);
+.main .block-container {
+    max-width: 1250px;
+    padding: 2rem 3rem;
 }
 
 [data-testid="stSidebar"] {
-    background: #102d40;
+    background: #0D1726;
+    border-right: 1px solid #1D3045;
 }
 
-[data-testid="stSidebar"] * {
-    color: #eaf4f8 !important;
+h1, h2, h3 {
+    color: #F1F7FC !important;
+    font-weight: 700 !important;
 }
 
-[data-testid="stSidebar"] .stButton button {
-    background: #147d83;
-    color: white !important;
+p, label, .stMarkdown {
+    color: #C2D0DE;
+}
+
+.stTextInput input,
+.stTextArea textarea,
+.stNumberInput input,
+.stSelectbox div[data-baseweb="select"] {
+    background: #111D2E !important;
+    color: #F1F7FC !important;
+    border: 1px solid #263B52 !important;
+    border-radius: 10px !important;
+}
+
+.stTextInput input:focus,
+.stTextArea textarea:focus {
+    border: 1px solid #35D6C5 !important;
+    box-shadow: 0 0 0 1px #35D6C5 !important;
+}
+
+.stButton button,
+.stDownloadButton button {
+    background: #20BBAA;
+    color: #06131D !important;
     border: none;
+    border-radius: 10px;
+    padding: 0.65rem 1.2rem;
+    font-weight: 700;
+    transition: all 0.2s ease;
 }
 
-.hero {
-    background: linear-gradient(115deg, #102f45, #176c72);
-    padding: 30px 34px;
-    border-radius: 18px;
-    color: white;
-    margin-bottom: 24px;
-    box-shadow: 0 8px 25px rgba(16,47,69,0.12);
+.stButton button:hover,
+.stDownloadButton button:hover {
+    background: #35D6C5;
+    transform: translateY(-2px);
 }
 
-.hero h1 {
-    color: white;
-    font-family: 'Manrope', sans-serif;
-    font-size: 34px;
-    font-weight: 800;
-    margin: 0;
-}
-
-.hero p {
-    color: #d5e9eb;
-    margin: 7px 0 0 0;
-    font-size: 15px;
-}
-
-.section-title {
-    color: #17394d;
-    font-family: 'Manrope', sans-serif;
-    font-weight: 800;
-    font-size: 21px;
-    margin: 15px 0;
-}
-
-.metric-card {
-    background: white;
-    border: 1px solid #e3edf2;
+div[data-testid="stVerticalBlockBorderWrapper"] {
+    background: #111D2E;
+    border: 1px solid #22364D;
     border-radius: 14px;
+}
+
+[data-testid="stExpander"] {
+    background: #111D2E;
+    border: 1px solid #22364D;
+    border-radius: 12px;
+}
+
+[data-testid="stMetric"] {
+    background: #111D2E;
     padding: 18px;
-    box-shadow: 0 3px 12px rgba(20,55,75,0.04);
-    min-height: 105px;
+    border: 1px solid #22364D;
+    border-radius: 12px;
 }
 
-.metric-label {
-    color: #718596;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: .6px;
+hr {
+    border-color: #263B52;
 }
 
-.metric-value {
-    color: #17394d;
-    font-family: 'Manrope', sans-serif;
-    font-size: 24px;
-    font-weight: 800;
-    margin-top: 8px;
-}
-
-.info-box {
-    background: #eaf5f6;
-    border-left: 4px solid #16858a;
-    padding: 14px 17px;
-    border-radius: 8px;
-    color: #24515b;
-    font-size: 13px;
-    margin: 15px 0;
-}
-
-.warning-box {
-    background: #fff7e9;
-    border-left: 4px solid #e2a43b;
-    padding: 14px 17px;
-    border-radius: 8px;
-    color: #79551d;
-    font-size: 13px;
-    margin: 15px 0;
-}
-
-.stButton > button {
-    border-radius: 9px;
-    min-height: 44px;
-    font-weight: 700;
-    transition: all .2s ease;
-}
-
-.stButton > button[kind="primary"] {
-    background: #147d83;
-    border: none;
-}
-
-.stButton > button[kind="primary"]:hover {
-    background: #10676d;
-    transform: translateY(-1px);
-}
-
-div[data-testid="stForm"] {
-    background: white;
-    border: 1px solid #e3edf2;
-    padding: 22px;
-    border-radius: 15px;
-}
-
-.stTabs [data-baseweb="tab-list"] {
-    gap: 15px;
-}
-
-.stTabs [data-baseweb="tab"] {
-    font-weight: 700;
-}
-
-[data-testid="stTextArea"] textarea,
-[data-testid="stTextInput"] input {
-    border-radius: 9px;
-}
-
-footer {
+#MainMenu, footer {
     visibility: hidden;
+}
+
+.stProgress > div > div {
+    background-color: #35D6C5;
 }
 
 </style>
@@ -173,16 +124,30 @@ footer {
 # API CONFIGURATION
 # --------------------------------------------------
 
-def get_groq_key():
-    try:
-        return st.secrets["GROQ_API_KEY"]
-    except (KeyError, FileNotFoundError):
-        return None
+try:
+    api_key = st.secrets.get("GROQ_API_KEY", "")
+except Exception:
+    api_key = ""
+
+if not api_key:
+    st.error(
+        "Groq API key is missing. Add GROQ_API_KEY "
+        "to your Streamlit Secrets."
+    )
+    st.stop()
+
+client = Groq(api_key=api_key)
 
 
-api_key = get_groq_key()
+# --------------------------------------------------
+# SESSION STATE
+# --------------------------------------------------
 
-MODEL = "llama-3.3-70b-versatile"
+if "analysis_result" not in st.session_state:
+    st.session_state.analysis_result = None
+
+if "patient_name" not in st.session_state:
+    st.session_state.patient_name = ""
 
 
 # --------------------------------------------------
@@ -192,55 +157,35 @@ MODEL = "llama-3.3-70b-versatile"
 with st.sidebar:
 
     st.markdown("""
-    <div style="text-align:center;padding:15px 5px 25px;">
-        <div style="font-size:42px;">🩺</div>
-        <div style="font-size:25px;font-weight:800;
-                    font-family:Manrope;color:white;">
-            CareLens
+    <div style="padding: 15px 0 25px 0;">
+        <div style="font-size: 34px; color: #35D6C5;">
+            ✚
         </div>
-        <div style="font-size:11px;color:#a9c6d1;">
+        <h2 style="margin:0; color:white;">CareLens</h2>
+        <p style="font-size:12px; color:#8DA3B8;">
             CLINICAL INTELLIGENCE PLATFORM
-        </div>
+        </p>
     </div>
     """, unsafe_allow_html=True)
 
-    st.divider()
-
-    st.markdown("### Navigation")
-
     page = st.radio(
-        "Navigate",
+        "NAVIGATION",
         ["Patient Analysis", "About CareLens"],
-        label_visibility="collapsed"
+        label_visibility="visible"
     )
 
     st.divider()
 
     st.markdown("### System Status")
-
-    if api_key:
-        st.success("Groq AI connected")
-    else:
-        st.error("API key not configured")
+    st.success("Interface Online")
+    st.success("Groq API Configured")
 
     st.caption(f"Model: {MODEL}")
 
     st.divider()
 
-    st.markdown("### Privacy & Safety")
-    st.caption(
-        "Use fictional or properly de-identified information. "
-        "Patient information should not contain names, addresses, "
-        "phone numbers or identification numbers."
-    )
-
-    st.markdown("""
-    <div style="font-size:11px;color:#a9c6d1;
-                margin-top:30px;">
-        CARELENS • STUDENT PROJECT<br>
-        AI-ASSISTED HEALTHCARE
-    </div>
-    """, unsafe_allow_html=True)
+    st.caption("CareLens v1.0")
+    st.caption("AI-assisted clinical decision support")
 
 
 # --------------------------------------------------
@@ -248,15 +193,16 @@ with st.sidebar:
 # --------------------------------------------------
 
 st.markdown("""
-<div class="hero">
-    <div style="font-size:12px;letter-spacing:1.5px;
-                color:#a9d9d9;font-weight:700;">
-        HEALTHCARE • ARTIFICIAL INTELLIGENCE
-    </div>
-    <h1>Clinical Intelligence Dashboard</h1>
-    <p>
-        Analyse patient information, identify potential health
-        concerns and support informed clinical decisions.
+<div style="margin-bottom: 25px;">
+    <p style="color:#35D6C5; font-size:13px;
+    letter-spacing:2px; font-weight:700;">
+        CLINICAL INTELLIGENCE
+    </p>
+    <h1 style="font-size:38px; margin-bottom:5px;">
+        CareLens Dashboard
+    </h1>
+    <p style="color:#8DA3B8;">
+        Patient assessment and AI-assisted clinical insights.
     </p>
 </div>
 """, unsafe_allow_html=True)
@@ -268,256 +214,238 @@ st.markdown("""
 
 if page == "Patient Analysis":
 
-    st.markdown(
-        '<div class="section-title">Patient Overview</div>',
-        unsafe_allow_html=True
-    )
-
-    m1, m2, m3 = st.columns(3)
-
-    with m1:
-        st.markdown("""
-        <div class="metric-card">
-            <div class="metric-label">AI Engine</div>
-            <div class="metric-value">Groq AI</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with m2:
-        st.markdown("""
-        <div class="metric-card">
-            <div class="metric-label">Analysis Type</div>
-            <div class="metric-value">Clinical Support</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with m3:
-        st.markdown("""
-        <div class="metric-card">
-            <div class="metric-label">Platform Status</div>
-            <div class="metric-value">Active</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    st.markdown(
-        '<div class="section-title">Patient Information</div>',
-        unsafe_allow_html=True
-    )
-
-    st.markdown("""
-    <div class="info-box">
-        Enter patient information below. For this demonstration,
-        use fictional or de-identified patient records.
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown("## Patient Information")
+    st.caption("Enter the available patient information below.")
 
     with st.form("patient_form"):
 
-        st.markdown("#### Basic Information")
+        st.markdown("### 01 · Basic Information")
 
-        c1, c2, c3 = st.columns(3)
+        col1, col2, col3 = st.columns(3)
 
-        with c1:
-            age = st.number_input(
-                "Patient Age",
-                min_value=0,
-                max_value=120,
-                value=35
+        with col1:
+            patient_name = st.text_input(
+                "Patient Name",
+                placeholder="Enter patient name"
             )
 
-        with c2:
+        with col2:
+            age = st.number_input(
+                "Age",
+                min_value=0,
+                max_value=120,
+                value=25
+            )
+
+        with col3:
             sex = st.selectbox(
                 "Sex",
                 ["Not specified", "Male", "Female", "Other"]
             )
 
-        with c3:
+        st.divider()
+
+        st.markdown("### 02 · Symptoms")
+
+        symptoms = st.text_area(
+            "Describe the symptoms",
+            placeholder="Describe the patient's symptoms...",
+            height=130
+        )
+
+        col1, col2 = st.columns(2)
+
+        with col1:
             duration = st.text_input(
                 "Symptom Duration",
-                placeholder="e.g. 5 days"
+                placeholder="e.g. 3 days"
+            )
+
+        with col2:
+            severity = st.select_slider(
+                "Symptom Severity",
+                options=["Mild", "Moderate", "Severe", "Very Severe"]
             )
 
         st.divider()
 
-        st.markdown("#### Clinical Information")
-
-        symptoms = st.text_area(
-            "Current Symptoms",
-            placeholder=(
-                "Describe symptoms, severity and when they started..."
-            ),
-            height=120
-        )
+        st.markdown("### 03 · Medical Background")
 
         medical_history = st.text_area(
             "Medical History",
-            placeholder=(
-                "Previous illnesses, surgeries, existing conditions..."
-            ),
-            height=100
+            placeholder="Previous conditions, surgeries, family history..."
         )
 
         medications = st.text_area(
-            "Medications and Allergies",
-            placeholder=(
-                "Current medications and known allergies..."
-            ),
-            height=90
+            "Current Medications",
+            placeholder="List current medications..."
+        )
+
+        allergies = st.text_input(
+            "Known Allergies",
+            placeholder="Enter known allergies or write None"
         )
 
         st.divider()
 
-        st.markdown("#### Observations & Test Results")
+        st.markdown("### 04 · Clinical Measurements")
 
-        vitals = st.text_area(
-            "Vital Signs",
-            placeholder=(
-                "Blood pressure, temperature, pulse, oxygen saturation..."
-            ),
-            height=90
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            temperature = st.text_input(
+                "Temperature",
+                placeholder="e.g. 37.2 °C"
+            )
+
+        with col2:
+            blood_pressure = st.text_input(
+                "Blood Pressure",
+                placeholder="e.g. 120/80 mmHg"
+            )
+
+        with col3:
+            heart_rate = st.text_input(
+                "Heart Rate",
+                placeholder="e.g. 75 bpm"
+            )
+
+        oxygen = st.text_input(
+            "Oxygen Saturation (SpO₂)",
+            placeholder="e.g. 98%"
         )
 
-        tests = st.text_area(
-            "Laboratory Results / Medical Reports",
-            placeholder=(
-                "Blood glucose, HbA1c, cholesterol, blood count..."
-            ),
-            height=100
+        test_results = st.text_area(
+            "Laboratory / Imaging Results",
+            placeholder="Enter available test results..."
         )
 
         st.divider()
 
-        st.markdown("#### Analysis Preferences")
+        st.markdown("### 05 · Analysis Requirements")
 
-        analysis_type = st.multiselect(
-            "Select analysis areas",
+        analysis_areas = st.multiselect(
+            "Select areas to explore",
             [
-                "Patient Information Summary",
-                "Potential Health Risks",
-                "Missing Clinical Information",
-                "Further Investigation Considerations",
-                "Treatment Support Strategies",
-                "Preventive Healthcare",
-                "AI Benefits and Limitations"
+                "Possible conditions",
+                "Differential considerations",
+                "Relevant investigations",
+                "Treatment considerations",
+                "Lifestyle and prevention",
+                "Warning signs and urgency"
             ],
             default=[
-                "Patient Information Summary",
-                "Potential Health Risks",
-                "Missing Clinical Information",
-                "Treatment Support Strategies"
+                "Possible conditions",
+                "Differential considerations",
+                "Relevant investigations",
+                "Warning signs and urgency"
             ]
         )
 
         submitted = st.form_submit_button(
-            "✦ Analyse Patient Information",
-            type="primary",
+            "✦ Generate Clinical Analysis",
             use_container_width=True
         )
 
-
     # --------------------------------------------------
-    # AI ANALYSIS
+    # GENERATE ANALYSIS
     # --------------------------------------------------
 
     if submitted:
 
-        if not api_key:
-            st.error(
-                "Groq API key is missing. Add GROQ_API_KEY "
-                "in your Streamlit Secrets settings."
-            )
+        if not symptoms.strip():
+            st.warning("Please enter the patient's symptoms.")
 
-        elif not symptoms.strip() and not vitals.strip() and not tests.strip():
-            st.warning(
-                "Please enter some patient information before analysis."
-            )
-
-        elif not analysis_type:
+        elif not analysis_areas:
             st.warning("Please select at least one analysis area.")
 
         else:
 
-            prompt = f"""
-You are an educational AI healthcare support assistant.
+            patient_data = f"""
+PATIENT INFORMATION
 
-Review the following fictional or de-identified patient information.
-
-PATIENT DETAILS
+Name: {patient_name or "Not provided"}
 Age: {age}
 Sex: {sex}
-Symptom duration: {duration}
 
 SYMPTOMS
-{symptoms}
 
-MEDICAL HISTORY
-{medical_history}
+Symptoms: {symptoms}
+Duration: {duration or "Not provided"}
+Severity: {severity}
 
-MEDICATIONS AND ALLERGIES
-{medications}
+MEDICAL BACKGROUND
 
-VITAL SIGNS
-{vitals}
+Medical History: {medical_history or "Not provided"}
+Medications: {medications or "Not provided"}
+Allergies: {allergies or "Not provided"}
 
-LABORATORY RESULTS
-{tests}
+CLINICAL MEASUREMENTS
+
+Temperature: {temperature or "Not provided"}
+Blood Pressure: {blood_pressure or "Not provided"}
+Heart Rate: {heart_rate or "Not provided"}
+Oxygen Saturation: {oxygen or "Not provided"}
+
+TEST RESULTS
+
+{test_results or "No test results provided"}
 
 REQUESTED ANALYSIS
-{", ".join(analysis_type)}
 
-IMPORTANT MEDICAL SAFETY RULES:
+{", ".join(analysis_areas)}
+"""
 
-1. Do not claim to diagnose or confirm a disease.
-2. Do not prescribe medications or dosages.
-3. Do not recommend starting or stopping medication.
-4. Distinguish known facts from possible concerns.
-5. Never invent missing medical information.
-6. Explain uncertainty and limitations.
-7. Identify potentially urgent warning signs.
-8. If the information suggests an emergency, clearly advise
-   immediate emergency medical assessment.
-9. Treatment suggestions must remain general and subject
-   to qualified medical review.
-10. Do not calculate unsupported medical risk scores.
+            system_prompt = """
+You are CareLens, an AI clinical information assistant.
+
+Your role is to help organize patient information and provide
+educational, evidence-informed clinical considerations.
+
+IMPORTANT RULES:
+
+1. Never claim to provide a confirmed diagnosis.
+2. Clearly distinguish possibilities from established facts.
+3. Do not invent patient information, examination findings,
+   laboratory values, or test results.
+4. Explain uncertainty and missing information.
+5. Do not prescribe medication or invent dosages.
+6. Identify emergency warning signs prominently.
+7. Recommend professional medical evaluation where appropriate.
+8. If symptoms suggest an emergency, prioritize urgent care
+   instructions over routine analysis.
 
 STRUCTURE YOUR RESPONSE:
 
-### 1. Patient Summary
-Summarise the available patient information.
+# Clinical Overview
+Summarize the provided information.
 
-### 2. Potential Health Risks
-Highlight possible concerns and explain why they may
-need further clinical assessment. Do not diagnose.
+# Possible Conditions
+Discuss relevant possibilities and explain why they may fit.
+Do not present them as confirmed diagnoses.
 
-### 3. Missing Information
-Identify information that would help the medical team.
+# Differential Considerations
+Explain other possibilities and what would help distinguish them.
 
-### 4. Further Investigation
-Suggest possible questions, examinations or tests
-for a qualified clinician to consider.
+# Recommended Investigations
+Suggest relevant assessments or tests for a clinician to consider.
 
-### 5. Treatment Support Strategies
-Provide general patient-support and care-planning
-considerations for medical professionals to review.
+# Treatment Considerations
+Provide general educational information, not prescriptions.
 
-### 6. Preventive Healthcare
-Mention relevant general lifestyle and monitoring
-considerations where appropriate.
+# Warning Signs and Urgency
+Explain when immediate medical attention is needed.
 
-### 7. AI Limitations
-Explain why clinical verification and human judgement
-remain necessary.
+# Missing Information
+Identify important information that would improve assessment.
 
-Use clear headings, concise explanations and professional
-medical language.
+Use clear professional language, headings, and bullet points.
 """
 
             try:
 
-                client = Groq(api_key=api_key)
-
                 with st.spinner(
-                    "CareLens is reviewing patient information..."
+                    "CareLens is analyzing the patient information..."
                 ):
 
                     response = client.chat.completions.create(
@@ -525,86 +453,60 @@ medical language.
                         messages=[
                             {
                                 "role": "system",
-                                "content": (
-                                    "You are a cautious educational "
-                                    "healthcare information assistant. "
-                                    "You do not replace licensed clinicians."
-                                )
+                                "content": system_prompt
                             },
                             {
                                 "role": "user",
-                                "content": prompt
+                                "content": patient_data
                             }
                         ],
-                        temperature=0.2,
-                        max_tokens=2200
+                        temperature=0.3,
+                        max_completion_tokens=4000
                     )
 
                     result = response.choices[0].message.content
 
-                    st.session_state["analysis_result"] = result
-                    st.session_state["analysis_date"] = (
-                        datetime.now().strftime("%d %B %Y, %I:%M %p")
+                    st.session_state.analysis_result = result
+                    st.session_state.patient_name = (
+                        patient_name or "Unnamed Patient"
                     )
 
-                st.success("Patient information review completed.")
-
             except Exception as e:
-                st.error(f"Analysis failed: {e}")
-
+                st.error(f"Analysis failed: {str(e)}")
 
     # --------------------------------------------------
     # DISPLAY RESULTS
     # --------------------------------------------------
 
-    if st.session_state.get("analysis_result"):
+    if st.session_state.analysis_result:
 
         st.divider()
 
-        st.markdown(
-            '<div class="section-title">Clinical Analysis Report</div>',
-            unsafe_allow_html=True
-        )
+        st.markdown("## Clinical Analysis")
 
         st.caption(
-            "Generated on: "
-            + st.session_state.get("analysis_date", "")
+            f"Patient: {st.session_state.patient_name}  |  "
+            f"Generated: {datetime.now().strftime('%d %B %Y, %I:%M %p')}"
         )
 
-        st.markdown("""
-        <div class="info-box">
-            AI-generated clinical support information.
-            Findings are not confirmed diagnoses and require
-            independent medical review.
-        </div>
-        """, unsafe_allow_html=True)
+        with st.container(border=True):
+            st.markdown(st.session_state.analysis_result)
 
-        tab1, tab2 = st.tabs([
-            "📋 Analysis Report",
-            "📄 Export Report"
-        ])
+        st.download_button(
+            label="↓ Download Clinical Report",
+            data=(
+                "# CareLens Clinical Analysis\n\n"
+                + st.session_state.analysis_result
+            ),
+            file_name="CareLens_Clinical_Report.md",
+            mime="text/markdown",
+            use_container_width=True
+        )
 
-        with tab1:
-            st.markdown(
-                st.session_state["analysis_result"]
-            )
-
-        with tab2:
-
-            st.markdown("### Download Patient Report")
-
-            st.download_button(
-                "⬇ Download Report",
-                data=st.session_state["analysis_result"],
-                file_name="CareLens_Clinical_Report.txt",
-                mime="text/plain",
-                use_container_width=True
-            )
-
-            st.caption(
-                "The downloaded report is an educational AI-generated "
-                "summary, not an official medical record."
-            )
+        if st.button("Clear Analysis", use_container_width=True):
+            st.session_state.analysis_result = None
+            st.session_state.patient_name = ""
+            st.rerun()
 
 
 # --------------------------------------------------
@@ -615,66 +517,67 @@ elif page == "About CareLens":
 
     st.markdown("## About CareLens")
 
-    st.write("""
-    CareLens is an AI-assisted healthcare demonstration
-    designed to show how artificial intelligence can support
-    hospitals in reviewing patient information and planning care.
+    st.markdown("""
+    CareLens is an AI-assisted clinical information platform
+    designed to organize patient information and generate
+    structured clinical insights.
 
-    It uses the Groq API to process clinical information and
-    generate structured educational reports.
+    Its purpose is to make patient information easier to
+    understand and help users explore relevant clinical
+    considerations.
     """)
 
-    st.markdown("### Main Features")
+    st.divider()
 
-    features = [
-        ("Patient Analysis", "Organises symptoms, medical history and observations."),
-        ("Risk Identification", "Highlights potential health concerns for clinician review."),
-        ("Treatment Support", "Provides general care-planning considerations."),
-        ("Preventive Healthcare", "Identifies relevant monitoring and lifestyle considerations."),
-        ("Clinical Reports", "Generates downloadable patient analysis summaries.")
-    ]
+    col1, col2 = st.columns(2)
 
-    for title, description in features:
-        with st.expander(title):
-            st.write(description)
+    with col1:
+        with st.container(border=True):
+            st.markdown("### Patient Assessment")
+            st.write(
+                "Collect and organize patient symptoms, medical "
+                "history, and clinical measurements."
+            )
+
+        with st.container(border=True):
+            st.markdown("### Clinical Insights")
+            st.write(
+                "Explore possible conditions, differential "
+                "considerations, and relevant investigations."
+            )
+
+    with col2:
+        with st.container(border=True):
+            st.markdown("### AI-Powered Analysis")
+            st.write(
+                "Generate structured reports using Groq's "
+                "language model infrastructure."
+            )
+
+        with st.container(border=True):
+            st.markdown("### Report Generation")
+            st.write(
+                "Export generated clinical analysis for "
+                "educational review."
+            )
+
+    st.divider()
 
     st.markdown("### Technology Stack")
 
-    st.write("""
-    - Python
-    - Streamlit
-    - Groq API
-    - Llama 3.3 70B
+    st.markdown("""
+    - **Frontend:** Streamlit
+    - **AI Infrastructure:** Groq API
+    - **Language Model:** OpenAI GPT-OSS 120B
+    - **Language:** Python
     """)
 
-    st.markdown("### Benefits of AI")
+    st.warning("""
+    **Medical Disclaimer**
 
-    st.write("""
-    AI can save time, organise large amounts of information,
-    highlight patterns and support medical professionals
-    in making informed decisions.
+    CareLens is an educational demonstration, not a medical
+    device or substitute for professional healthcare.
+    Its output may be incomplete or inaccurate. Do not use
+    it to diagnose, prescribe, or make emergency-care decisions.
+    Always consult a qualified healthcare professional.
     """)
-
-    st.markdown("### Limitations")
-
-    st.write("""
-    AI can produce inaccurate information, reflect biases
-    in its training data and overlook important clinical context.
-    It cannot replace doctors or independent medical judgement.
-    """)
-
-
-# --------------------------------------------------
-# FOOTER
-# --------------------------------------------------
-
-st.divider()
-
-st.markdown("""
-<div style="text-align:center;padding:12px;color:#8296a5;
-            font-size:12px;">
-    <b>CareLens</b> · AI-Assisted Healthcare Support<br>
-    Built with Streamlit and Groq · Educational Prototype<br><br>
-    Not intended for real-world diagnosis or treatment.
-</div>
-""", unsafe_allow_html=True)
